@@ -6,6 +6,11 @@ sky:
     database: sky_take_out
     username: root
     password: zyc123465
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    password: zyc123465
   alioss:
     bucket-name: sky-take-out-jade
     endpoint: oss-cn-beijing.aliyuncs.com

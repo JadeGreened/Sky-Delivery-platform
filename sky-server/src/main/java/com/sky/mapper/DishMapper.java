@@ -21,7 +21,7 @@ public interface DishMapper {
      * @param categoryId
      * @return
      */
-    @Select("select count(id) from dish where category_id = #{categoryId}")
+    @Select("select count(id) from sky_take_out.dish where category_id = #{categoryId}")
     Integer countByCategoryId(Long categoryId);
 
     /**
@@ -62,4 +62,10 @@ public interface DishMapper {
      */
     @AutoFill(value = OperationType.UPDATE)
     void update(Dish dish);
+
+    List<Dish> getByCategoryId(Long categoryId);
+
+
+    @Select("select * from sky_take_out.dish where id = #{id}")
+    List<Dish> getBySetmealId(Long id);
 }
