@@ -49,5 +49,5 @@ public interface CategoryMapper {
      * @param type
      * @return
      */
-    List<Category> list(Long type);
+    List<Category> list(Integer type);
 }
