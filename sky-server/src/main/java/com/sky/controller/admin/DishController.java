@@ -11,9 +11,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * dish management
@@ -26,6 +28,8 @@ import java.util.List;
 public class DishController {
     @Autowired
     private DishService dishService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
 
 
@@ -39,6 +43,8 @@ public class DishController {
     public Result save(@RequestBody DishDTO dishDTO){
         log.info("add new dish: {}",dishDTO);
         dishService.saveWithFlavor(dishDTO);
+        String key = "dish_"+ dishDTO.getCategoryId();
+        cleanCache(key);
         return Result.success();
     }
 
@@ -58,6 +64,7 @@ public class DishController {
     public Result delete(@RequestParam List<Long> ids){
         log.info("massive delete the dish,{}",ids);
         dishService.deleteBench(ids);
+        cleanCache("dish_*");
         return Result.success();
     }
 
@@ -76,12 +83,14 @@ public class DishController {
     public Result update(@RequestBody DishDTO dishDTO){
         log.info("update the dish data: {}",dishDTO);
         dishService.updateWithFlavor(dishDTO);
+        cleanCache("dish_*");
         return Result.success();
     }
 
     @GetMapping("/list")
     @ApiOperation("list the dish by category")
     public Result<List<Dish>> listByCategory(Long categoryId){
+
         List<Dish> dishVOList = dishService.listByCategory(categoryId);
         return Result.success(dishVOList);
     }
@@ -90,6 +99,16 @@ public class DishController {
     @ApiOperation("start or stop the dish")
     public Result startOrStop(@PathVariable Integer status,Long id){
         dishService.update(status,id);
+        cleanCache("dish_*");
         return Result.success();
+    }
+
+    /**
+     * clean the cache data
+     * @param pattern
+     */
+    private void cleanCache(String pattern){
+        Set keys = redisTemplate.keys(pattern);
+        redisTemplate.delete(keys);
     }
 }
