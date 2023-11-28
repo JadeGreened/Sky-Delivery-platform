@@ -12,4 +12,8 @@ public interface UserMapper {
     User getByOpenid(String openId);
 
     void insert(User user);
+
+
+    @Select("select * from sky_take_out.user where id = #{id}")
+    User getById(Long userId);
 }
