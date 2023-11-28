@@ -12,6 +12,8 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +38,7 @@ public class SetMealController {
 
     @PostMapping
     @ApiOperation("add the setMeal data")
+    @CacheEvict(cacheNames = "setmealCache",key = "#setmealDTO.categoryId")
     public Result save(@RequestBody SetmealDTO setmealDTO){
         log.info("insert the setMeal data:{}",setmealDTO);
         setmealService.insert(setmealDTO);
@@ -63,6 +66,7 @@ public class SetMealController {
 
     @DeleteMapping
     @ApiOperation("Batch delete the setmeal")
+    @CacheEvict(cacheNames = "setmealCache",allEntries = true)
     public Result batchDelete(@RequestParam List<Long> ids){
         log.info("Batch Delete the setmeal");
         setmealService.batchDelete(ids);
@@ -72,6 +76,7 @@ public class SetMealController {
 
     @PostMapping("/status/{status}")
     @ApiOperation("set the start and stop")
+    @CacheEvict(cacheNames = "setmealCache",allEntries = true)
     public Result startOrStop(@PathVariable Integer status, Long id){
         log.info("Start or stop the setmeal: {} {}",status,id);
         setmealService.startOrStop(status,id);
