@@ -10,4 +10,10 @@
                 (#{od.name},#{od.image},#{od.orderId},#{od.dishId},#{od.setmealId},#{od.dishFlavor},#{od.number},#{od.amount})
             </foreach>
     </insert>
+    <delete id="deleteById">
+        delete from sky_take_out.orders
+        <where>
+
+        </where>
+    </delete>
 </mapper>

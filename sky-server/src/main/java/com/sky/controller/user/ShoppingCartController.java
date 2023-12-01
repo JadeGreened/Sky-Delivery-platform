@@ -49,4 +49,13 @@ public class ShoppingCartController {
         return Result.success();
     }
 
+    @PostMapping("/sub")
+    @ApiOperation("delete one in cart")
+    public Result deleteOne(@RequestBody ShoppingCartDTO shoppingCartDTO){
+        shoppingCartService.deleteOne(shoppingCartDTO);
+        return Result.success();
+
+    }
+
+
 }

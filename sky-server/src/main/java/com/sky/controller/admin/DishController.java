@@ -53,7 +53,6 @@ public class DishController {
     public Result<PageResult> page(DishPageQueryDTO dishPageQueryDTO){
         log.info("The dish page query:{}",dishPageQueryDTO);
         PageResult pageResult = dishService.pageQuery(dishPageQueryDTO);
-
         return Result.success(pageResult);
 
     }
