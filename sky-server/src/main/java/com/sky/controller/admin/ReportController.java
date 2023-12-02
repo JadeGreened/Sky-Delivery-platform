@@ -10,12 +10,14 @@ import com.sky.vo.UserReportVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 
 /**
@@ -46,12 +48,11 @@ public class ReportController {
     @ApiOperation("user sum")
     public Result<UserReportVO> userStatistics(
             @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
-            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end)
-    {
-        log.info("the sum of the users:{},{}",begin,end);
+            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        log.info("the sum of the users:{},{}", begin, end);
 
 
-        return Result.success(reportService.getUserStatistics(begin,end));
+        return Result.success(reportService.getUserStatistics(begin, end));
 
 
     }
@@ -61,11 +62,10 @@ public class ReportController {
     @ApiOperation("orders relevant statistics")
     public Result<OrderReportVO> ordersStatistic(
             @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
-            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end)
-    {
-        log.info("the order statistics from: {},{}",begin,end);
+            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        log.info("the order statistics from: {},{}", begin, end);
 
-        return Result.success(reportService.getOrderStatistics(begin,end));
+        return Result.success(reportService.getOrderStatistics(begin, end));
 
 
     }
@@ -74,14 +74,22 @@ public class ReportController {
     @ApiOperation("orders relevant statistics")
     public Result<SalesTop10ReportVO> topTen(
             @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
-            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end)
-    {
-        log.info("the top 10 in the dishes: {},{}",begin,end);
+            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        log.info("the top 10 in the dishes: {},{}", begin, end);
 
-        return Result.success(reportService.getTopTen(begin,end));
+        return Result.success(reportService.getTopTen(begin, end));
 
 
     }
 
+
+
+
+    @GetMapping("/export")
+    @ApiOperation("export the operation data")
+    public void export(HttpServletResponse httpServletResponse){
+        reportService.exportBussinessData(httpServletResponse);
+
+    }
 
 }
