@@ -16,10 +16,10 @@ public class MyTask {
      */
 
 
-    @Scheduled(cron = "0/5 * * * * ?")
-    public void excuteTask(){
-        log.info("the set time task in excuting: {}",new Date());
-    }
+//    @Scheduled(cron = "0/5 * * * * ?")
+//    public void excuteTask(){
+//        log.info("the set time task in excuting: {}",new Date());
+//    }
 
 
 }

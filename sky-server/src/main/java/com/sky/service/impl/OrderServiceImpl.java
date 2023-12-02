@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -19,6 +20,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -51,6 +55,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
+
     /**
      * the user submit order
      *
@@ -89,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetail> orderDetailList = new ArrayList<>();
         for (ShoppingCart cart : shoppingCartList) {
             OrderDetail orderDetail = new OrderDetail();
-            BeanUtils.copyProperties(cart,orderDetail);
+            BeanUtils.copyProperties(cart, orderDetail);
             orderDetail.setOrderId(orders.getId());//set the current order id
             orderDetailList.add(orderDetail);
         }
@@ -155,6 +163,14 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
+        //type orderID content
+        Map map = new HashMap();
+        map.put("type", 1);
+        map.put("orderId", ordersDB.getId());
+        map.put("content", "订单号为 : " + outTradeNo);
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
     }
 
     @Override
@@ -194,7 +210,7 @@ public class OrderServiceImpl implements OrderService {
         Orders orders = orderMapper.getById(orderId);
         List<OrderDetail> list = orderDetailMapper.getByOrderId(orderId);
         OrderVO orderVO = new OrderVO();
-        BeanUtils.copyProperties(orders,orderVO);
+        BeanUtils.copyProperties(orders, orderVO);
         orderVO.setOrderDetailList(list);
         return orderVO;
     }
@@ -278,7 +294,7 @@ public class OrderServiceImpl implements OrderService {
         int deliveryInProgress = 0;
         List<Orders> ordersList = orderMapper.list();
         for (Orders orders : ordersList) {
-            switch (orders.getStatus()){
+            switch (orders.getStatus()) {
                 case 1:
                     pendingPayment += 1;
                     break;
@@ -313,7 +329,7 @@ public class OrderServiceImpl implements OrderService {
         OrderVO orderVO = new OrderVO();
         Orders orders = orderMapper.getById(id);
         List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(id);
-        BeanUtils.copyProperties(orders,orderVO);
+        BeanUtils.copyProperties(orders, orderVO);
         orderVO.setOrderDetailList(orderDetails);
         return orderVO;
     }
@@ -321,7 +337,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void confirmOrder(OrdersConfirmDTO ordersConfirmDTO) {
         Orders orders = orderMapper.getById(ordersConfirmDTO.getId());
-        orders.setStatus(orders.getStatus()+1);
+        orders.setStatus(orders.getStatus() + 1);
         orderMapper.update(orders);
     }
 
@@ -345,6 +361,20 @@ public class OrderServiceImpl implements OrderService {
         Orders orders = orderMapper.getById(id);
         orders.setStatus(4);
         orderMapper.update(orders);
+    }
+
+    @Override
+    public void reminder(Long id) {
+        Orders ordersDB = orderMapper.getById(id);
+        if (ordersDB == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        Map map = new HashMap();
+        map.put("type", 2);
+        map.put("orderId", id);
+        map.put("content", "订单号, " + ordersDB.getNumber());
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
+
     }
 
     private List<OrderVO> getOrderVOList(Page<Orders> page) {

@@ -86,4 +86,12 @@ public class OrderController {
     }
 
 
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("guests hurrying for the order")
+    public Result reminder(@PathVariable Long id){
+        orderService.reminder(id);
+        return Result.success();
+    }
+
+
 }

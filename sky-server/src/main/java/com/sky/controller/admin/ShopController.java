@@ -31,7 +31,8 @@ public class ShopController {
     @ApiOperation("get the operation status od the shop")
     public Result<Integer> getStatus() {
         Integer shopStatus = (Integer) redisTemplate.opsForValue().get(KEY);
-        log.info("get the shop status:{}", shopStatus == 1 ? "on" : "off");
+        assert shopStatus != null;
+        log.info("get the shop status:{}", shopStatus.equals(1) ? "on" : "off");
         return Result.success(shopStatus);
     }
 }
